@@ -147,7 +147,24 @@ public class CKANApiExtensionResource {
 	@GET
     public Response getDatasetCount() {
 		try{
+			
 			return Response.ok(new JSONObject().put("count", ckanapiext.getDatasetCount()).toString()).build();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new InternalServerErrorException(e);
+		}
+	}
+
+	@Path("datasets/stats")
+	@GET
+    public Response getDatasetStats() {
+		try{
+			JSONObject result = new JSONObject();
+			Map<String,String> resultData = ckanapiext.getDatasetStats();
+			for (String dsType : resultData.keySet()) {
+				result.put(dsType, resultData.get(dsType)+"");
+			}
+			return Response.ok(result.toString()).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
