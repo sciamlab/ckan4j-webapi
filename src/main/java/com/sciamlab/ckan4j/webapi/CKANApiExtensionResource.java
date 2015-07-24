@@ -160,9 +160,9 @@ public class CKANApiExtensionResource {
     public Response getDatasetStats() {
 		try{
 			JSONObject result = new JSONObject();
-			Map<String,String> resultData = ckanapiext.getDatasetStats();
+			Map<String,Long> resultData = ckanapiext.getDatasetStats();
 			for (String dsType : resultData.keySet()) {
-				result.put(dsType, resultData.get(dsType)+"");
+				result.put(dsType, resultData.get(dsType));
 			}
 			return Response.ok(result.toString()).build();
 		} catch (Exception e) {
