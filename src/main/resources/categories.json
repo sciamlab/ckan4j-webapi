@@ -1,0 +1,104 @@
+{
+  "categories": [
+    {
+      "id": "agricoltura-pesca",
+      "name": "Agricoltura e pesca",
+      "name_en": "Agriculture and Fisheries"
+    },
+    {
+      "id": "ambiente-meteo",
+      "name": "Ambiente e meteo",
+      "name_en": "Environment and Weather"
+    },
+    {
+      "id": "attivita-produttive",
+      "name": "Attività produttive",
+      "name_en": "Productive Activities"
+    },
+    {
+      "id": "bandi-concorsi",
+      "name": "Bandi e concorsi",
+      "name_en": "Announcement and competitions"
+    },
+    {
+      "id": "beni-gestione",
+      "name": "Beni immobili e gestione del patrimonio",
+      "name_en": "Property and asset management"
+    },
+    {
+      "id": "bilanci-pagamenti",
+      "name": "Bilanci e pagamenti",
+      "name_en": "Budgets and payments"
+    },
+    {
+      "id": "cultura",
+      "name": "Cultura",
+      "name_en": "Culture"
+    },
+    {
+      "id": "finanziamenti-pubblici",
+      "name": "Finanziamenti pubblici",
+      "name_en": "Public funding"
+    },
+    {
+      "id": "formazione",
+      "name": "Formazione",
+      "name_en": "Training"
+    },
+    {
+      "id": "istituzioni-politica",
+      "name": "Istituzioni e politica",
+      "name_en": "Institutions and politics"
+    },
+    {
+      "id": "istruzione-ricerca",
+      "name": "Istruzione, ricerca e diritto allo studio",
+      "name_en": "Education, research and the right to study"
+    },
+    {
+      "id": "lavoro",
+      "name": "Lavoro",
+      "name_en": "Work"
+    },
+    {
+      "id": "mobilita-trasporti",
+      "name": "Mobilità e trasporti",
+      "name_en": "Mobility and Transport"
+    },
+    {
+      "id": "normativa-atti",
+      "name": "Normativa e atti",
+      "name_en": "Laws and Acts"
+    },
+    {
+      "id": "opere-pubbliche",
+      "name": "Opere pubbliche",
+      "name_en": "Public Works"
+    },
+    {
+      "id": "politiche-sociali-giovanili",
+      "name": "Politiche sociali e giovanili",
+      "name_en": "Social and youth politics"
+    },
+    {
+      "id": "sanita",
+      "name": "Sanità",
+      "name_en": "Health"
+    },
+    {
+      "id": "tasse-tributi",
+      "name": "Tasse e tributi",
+      "name_en": "Taxes and duties"
+    },
+    {
+      "id": "territorio-urbanistica",
+      "name": "Territorio e urbanistica",
+      "name_en": "Land and city planning"
+    },
+    {
+      "id": "turismo-sport",
+      "name": "Turismo, sport e tempo libero",
+      "name_en": "Tourism, sport and leisure"
+    }
+  ]
+}
