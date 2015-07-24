@@ -62,7 +62,14 @@ public class CKANApiExtensionResource {
 			info.put("version", "2.0");
 			info.put("author", "SciamLab");
 			info.put("contact", "api@sciamlab.com");
-			JSONArray methods = new JSONArray().put("tags/top").put("datasets/count").put("organization/{name}").put("organizations/count").put("organizations/lastupdate").put("eurovoc/stats");
+			JSONArray methods = new JSONArray()
+					.put("tags/top")
+					.put("datasets/count")
+					.put("datasets/stats")
+					.put("organization/{name}")
+					.put("organizations/count")
+					.put("organizations/lastupdate")
+					.put("eurovoc/stats");
 			info.put("methods", methods);
 			return Response.ok(info.toString()).build();
 			
