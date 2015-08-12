@@ -9,9 +9,9 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.model.AnnotatedMethod;
 
 import com.sciamlab.auth.annotation.ApiKeyAuthentication;
-import com.sciamlab.auth.filter.ApiKeySecurityFilter.ApiKeySecurityFilterBuilder;
 import com.sciamlab.auth.util.JerseyHelper;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
+import com.sciamlab.ckan4j.webapi.util.ApiKeySecurityFilter.ApiKeySecurityFilterBuilder;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
 
 public class CKANWebApiResourceConfig extends ResourceConfig {

@@ -17,6 +17,7 @@ public class CKANWebApiConfig {
 	
 	private static final Logger logger = Logger.getLogger(CKANWebApiConfig.class);
 	private static final String PROPS_FILE = "ckan4j.properties";
+	private static final String DEFAULT_LOG_FILE = "log4j.properties";
 	
 	public static boolean LOG_ENABLED;
 	
@@ -49,10 +50,9 @@ public class CKANWebApiConfig {
 	
 	static{
 		try {
-			PropertyConfigurator.configure(SciamlabStreamUtils.getInputStream("log4j.properties"));
-		} catch (Exception e) {
-			logger.error("Error loading properties", e);
-			throw new InternalServerErrorException(e);
+			PropertyConfigurator.configure(SciamlabStreamUtils.getInputStream(System.getProperty("logprops_filepath", DEFAULT_LOG_FILE)));
+		} catch (FileNotFoundException e) {
+			logger.error(e.getMessage(), e);
 		}
 		logger.info("log4j config file successfully loaded");
 		//loading properties
