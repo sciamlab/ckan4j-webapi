@@ -62,7 +62,14 @@ public class CKANApiExtensionResource {
 			info.put("version", "2.0");
 			info.put("author", "SciamLab");
 			info.put("contact", "api@sciamlab.com");
-			JSONArray methods = new JSONArray().put("tags/top").put("datasets/count").put("organization/{name}").put("organizations/count").put("organizations/lastupdate").put("eurovoc/stats");
+			JSONArray methods = new JSONArray()
+					.put("tags/top")
+					.put("datasets/count")
+					.put("datasets/stats")
+					.put("organization/{name}")
+					.put("organizations/count")
+					.put("organizations/lastupdate")
+					.put("eurovoc/stats");
 			info.put("methods", methods);
 			return Response.ok(info.toString()).build();
 			
@@ -147,7 +154,24 @@ public class CKANApiExtensionResource {
 	@GET
     public Response getDatasetCount() {
 		try{
+			
 			return Response.ok(new JSONObject().put("count", ckanapiext.getDatasetCount()).toString()).build();
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new InternalServerErrorException(e);
+		}
+	}
+
+	@Path("datasets/stats")
+	@GET
+    public Response getDatasetStats() {
+		try{
+			JSONObject result = new JSONObject();
+			Map<String,Long> resultData = ckanapiext.getDatasetStats();
+			for (String dsType : resultData.keySet()) {
+				result.put(dsType, resultData.get(dsType));
+			}
+			return Response.ok(result.toString()).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
