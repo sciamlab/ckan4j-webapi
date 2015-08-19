@@ -82,6 +82,9 @@ public class CKANWebApiConfig {
 		
 	} 
 	
+	/**
+	 * this is just to force the loading of static properties
+	 */
 	public static void init(){}
 	
 	public static void loadProps() throws IOException {
