@@ -155,7 +155,10 @@ public class CKANApiExtensionResource {
     public Response getDatasetCount() {
 		try{
 			
-			return Response.ok(new JSONObject().put("count", ckanapiext.getDatasetCount()).toString()).build();
+			return Response.ok(new JSONObject()
+				.put("datasets", ckanapiext.getDatasetCount())
+				.put("resources", ckanapiext.getOrganizationCount())
+				.put("publishers", ckanapiext.getResourcesCount()).toString()).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);

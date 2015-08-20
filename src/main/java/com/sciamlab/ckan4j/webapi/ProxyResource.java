@@ -20,6 +20,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -197,28 +199,20 @@ public class ProxyResource {
 //	}
 	
 	public Map<Integer, List<Object>> getXLSRecordsFromURL(String url) throws Exception{
-		InputStream is = null;
-        try {
-        	is = SciamlabStreamUtils.getRemoteInputStream(url);
+        try (InputStream is = SciamlabStreamUtils.getRemoteInputStream(url);){
 	        HSSFWorkbook wb = new HSSFWorkbook(is);
 	        HSSFSheet sheet = wb.getSheetAt(0);
 	        Iterator<Row> rowIterator = sheet.iterator();
 	        return getGenericExcelRecordsUsingIterator(rowIterator);
-        }finally {
-            if (is != null)	try { is.close(); } catch (IOException e) { logger.error(SciamlabStringUtils.stackTraceToString(e)); }
         }
 	}
 	
 	public Map<Integer, List<Object>> getXLSXRecordsFromURL(String url) throws Exception{
-		InputStream is = null;
-        try {
-        	is = SciamlabStreamUtils.getRemoteInputStream(url);
+        try (InputStream is = SciamlabStreamUtils.getRemoteInputStream(url);){
 			XSSFWorkbook wb = new XSSFWorkbook(is);
 			XSSFSheet sheet = wb.getSheetAt(0);
 			Iterator<Row> rowIterator = sheet.iterator();
 			return getGenericExcelRecordsUsingIterator(rowIterator);
-        }finally {
-            if (is != null)	try { is.close(); } catch (IOException e) { logger.error(SciamlabStringUtils.stackTraceToString(e)); }
         }
 	}
 	
@@ -255,15 +249,72 @@ public class ProxyResource {
    		}
 		return records;
 	}
-
+	
 	public Map<Integer, List<Object>> getCSVRecordsFromURL(String url) throws Exception{
-		InputStream is = null;
-        BufferedReader reader = null;
-        try {
-        	is = SciamlabStreamUtils.getRemoteInputStream(url);
-        	InputStreamReader isr = new InputStreamReader(is, "UTF8");
+        try (	InputStream is = SciamlabStreamUtils.getRemoteInputStream(url);
+        		InputStreamReader isr = new InputStreamReader(is, "UTF8");
+                BufferedReader reader = new BufferedReader(isr);){
+        	logger.debug("File encoding: "+isr.getEncoding());
+        	Iterable<CSVRecord> csv_records = CSVFormat.DEFAULT.parse(reader);
+        	Map<Integer, List<Object>> records = new LinkedHashMap<Integer, List<Object>>();
+			for (CSVRecord csv_record : csv_records) {
+    			List<Object> record = new ArrayList<Object>();
+        	    for(String c : csv_record){
+        	    	try {
+    					//checking if integer
+    					String d = c;
+    					if(d.split(",").length>2){
+    						// 10,000,000
+    						record.add(Integer.parseInt(d.replace(",", "")));
+    					}else if(d.split(".").length>2){
+    						// 10.000.000
+    						record.add(Integer.parseInt(d.replace(".", "")));
+    					}else if(!d.contains(",") && d.split(".").length==2){
+    						// 10.000
+    						record.add(Integer.parseInt(d.replace(".", "")));
+    					}else{
+    						record.add(Integer.parseInt(c));
+    					}
+					} catch (NumberFormatException e) {
+						try {
+							//checking if double
+							String d = c;
+							if(d.split(",").length>2){
+								// 10,000,000.00
+								record.add(Double.parseDouble(d.replace(",", "")));
+							}else if(d.split(".").length>2){
+								// 10.000.000,00
+								record.add(Double.parseDouble(d.replace(".", "").replace(",", ".")));
+							}else if(d.contains(".") && d.contains(",") && d.indexOf(".")<d.indexOf(",")){
+								// 10.000,00
+								record.add(Double.parseDouble(d.replace(".", "").replace(",", ".")));
+							}else if(d.contains(".") && d.contains(",") && d.indexOf(".")>d.indexOf(",")){
+								// 10,000.00
+								record.add(Double.parseDouble(d.replace(",", "")));
+							}else if(!d.contains(".") && d.split(",").length==2){
+								// 10,00
+								record.add(Double.parseDouble(d.replace(",", ".")));
+							}else{
+	    						record.add(Double.parseDouble(c));
+	    					}
+						} catch (NumberFormatException e1) {
+							//otherwise string
+							record.add(c);
+						}
+					}
+        	    }
+        	    records.put(Integer.parseInt(csv_record.getRecordNumber()+""), record);
+        	}
+			return records;
+        }
+	}
+
+	@Deprecated
+	public Map<Integer, List<Object>> getCSVRecordsFromURL_OLD(String url) throws Exception{
+        try (	InputStream is = SciamlabStreamUtils.getRemoteInputStream(url);
+        		InputStreamReader isr = new InputStreamReader(is, "UTF8");
+                BufferedReader reader = new BufferedReader(isr);){
         	logger.info("File encoding: "+isr.getEncoding());
-            reader = new BufferedReader(isr);
             String line;
             Map<Integer, List<Object>> records = new LinkedHashMap<Integer, List<Object>>();
 			String separator = null;
@@ -324,13 +375,10 @@ public class ProxyResource {
     			r_num++;
             }
 			return records;
-            
-        }finally {
-            if(is != null)	try { is.close(); } catch (IOException e) { logger.error(SciamlabStringUtils.stackTraceToString(e)); }
-            if(reader!=null) try { reader.close(); } catch (IOException e) { logger.error(SciamlabStringUtils.stackTraceToString(e)); }
         }
 	}
 	
+	@Deprecated
 	private static String getSeparator(String line){
 		int comma=CharMatcher.is(',').countIn(line);
 		int semicolon=CharMatcher.is(';').countIn(line);
