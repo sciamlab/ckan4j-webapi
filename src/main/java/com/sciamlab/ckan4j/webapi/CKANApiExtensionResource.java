@@ -156,9 +156,8 @@ public class CKANApiExtensionResource {
 		try{
 			
 			return Response.ok(new JSONObject()
-				.put("datasets", ckanapiext.getDatasetCount())
-				.put("resources", ckanapiext.getOrganizationCount())
-				.put("publishers", ckanapiext.getResourcesCount()).toString()).build();
+				.put("count", ckanapiext.getDatasetCount())
+				.toString()).build();
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
@@ -215,32 +214,33 @@ public class CKANApiExtensionResource {
 		}
 	}
 	
-	private static final Map<String, String> CATEGORIES = new HashMap<String, String>(){{
-		put("AGRICULTURE-FISHERIES-FORESTRY-FOOD", "Agricoltura, pesca, natura, cibo");//"Agriculture, fisheries, forestry, food");
-		put("EDUCATION-CULTURE-AND-SPORT", "Istruzione, cultura e sport");//"Education, culture and sport");
-		put("ENVIRONMENT", "Ambiente");//"Environment");
-		put("ENERGY", "Energia");//"Energy");
-		put("TRANSPORT", "Trasporto");//"Transport");
-		put("SCIENCE-AND-TECHNOLOGY", "Scienza e tecnologia");//"Science and technology");
-		put("ECONOMY-AND-FINANCE", "Economia e finanza");//"Economy and finance");
-		put("POPULATION-AND-SOCIAL-CONDITIONS", "Popolazione e welfare");//"Population and social conditions");
-		put("HEALTH", "Salute");//"Health");
-		put("GOVERNMENT-PUBLIC-SECTOR", "Governo, pubblica amministrazione ");//"Government, public sector");
-		put("REGIONS-CITIES", "Regioni e città");//"Regions, cities");
-		put("JUSTICE-LEGAL-SYSTEM-PUBLIC-SAFETY", "Giustizia e sicurezza");//"Justice, legal system, public safety");
-		put("INTERNATIONAL-ISSUES", "Politica internazionale");//"International issues");
-	}};
+//	private static final Map<String, String> CATEGORIES = new HashMap<String, String>(){{
+//		put("AGRICULTURE-FISHERIES-FORESTRY-FOOD", "Agricoltura, pesca, natura, cibo");//"Agriculture, fisheries, forestry, food");
+//		put("EDUCATION-CULTURE-AND-SPORT", "Istruzione, cultura e sport");//"Education, culture and sport");
+//		put("ENVIRONMENT", "Ambiente");//"Environment");
+//		put("ENERGY", "Energia");//"Energy");
+//		put("TRANSPORT", "Trasporto");//"Transport");
+//		put("SCIENCE-AND-TECHNOLOGY", "Scienza e tecnologia");//"Science and technology");
+//		put("ECONOMY-AND-FINANCE", "Economia e finanza");//"Economy and finance");
+//		put("POPULATION-AND-SOCIAL-CONDITIONS", "Popolazione e welfare");//"Population and social conditions");
+//		put("HEALTH", "Salute");//"Health");
+//		put("GOVERNMENT-PUBLIC-SECTOR", "Governo, pubblica amministrazione ");//"Government, public sector");
+//		put("REGIONS-CITIES", "Regioni e città");//"Regions, cities");
+//		put("JUSTICE-LEGAL-SYSTEM-PUBLIC-SAFETY", "Giustizia e sicurezza");//"Justice, legal system, public safety");
+//		put("INTERNATIONAL-ISSUES", "Politica internazionale");//"International issues");
+//	}};
 	
 	@Path("category/facets")
 	@GET
     public Response getCategoryfacets() {
 		try{
 			JSONArray result = new JSONArray();
-			List<Properties> res = dao.execQuery( "select pe.value as name, count(*) as c from package p join package_extra pe on p.id = pe.package_id where p.state='active' and pe.key='dcat-category-id' group by pe.value order by c desc");
+			List<Properties> res = dao.execQuery( "select pe.value as name, count(*) as c from package p join package_extra pe on p.id = pe.package_id where p.state='active' and pe.key='dcat-category-name' group by pe.value order by c desc");
 			for(Properties p : res) {
 				JSONObject f = new JSONObject();
 				f.put("count", p.get("c"));
-				f.put("display_name", (CATEGORIES.containsKey(p.getProperty("name")))?CATEGORIES.get(p.getProperty("name")):p.getProperty("name"));
+//				f.put("display_name", (CATEGORIES.containsKey(p.getProperty("name")))?CATEGORIES.get(p.getProperty("name")):p.getProperty("name"));
+				f.put("display_name", p.getProperty("name"));
 				f.put("name", p.getProperty("name"));
 				result.put(f);
 			}
