@@ -37,22 +37,6 @@ public class UserManagerResource {
 	
 	public UserManagerResource(){ }
 	
-	@GET
-    public Response apiInfo() {
-		try{ 
-			JSONObject info = new JSONObject();
-			info.put("name", "ckan4j-webapi");
-			info.put("version", "2.0");
-			info.put("author", "SciamLab");
-			info.put("contact", "api@sciamlab.com");
-			return Response.ok(info.toString()).build();
-			
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new InternalServerErrorException(e);
-		}
-	}
-	
 	@Path("validate")
 	@GET
     public Response validate(@QueryParam("key") String key, @HeaderParam("Authorization") String authorization) {

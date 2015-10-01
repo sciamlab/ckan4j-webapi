@@ -87,7 +87,7 @@ public class CKANWebApiDAO extends SciamlabDAO implements SciamlabAuthDAO {
 	public User getUser(String col_key, final String col_value) {
 		List<Properties> map = this.execQuery("SELECT * FROM "+AuthLibConfig.USERS_TABLE_NAME+" u left join "+AuthLibConfig.USERS_SOCIAL_TABLE_NAME+" us on u.id=us.ckan_id WHERE "+col_key+" = ?", 
 				new ArrayList<Object>(){{ add(col_value); }},
-				new ArrayList<String>(){{ add("id"); add("name"); add("fullname"); add("email"); add("apikey"); add("social"); add("details");  }}); 
+				new ArrayList<String>(){{ add("id"); add("name"); add("password"); add("fullname"); add("email"); add("apikey"); add("social"); add("details");  }}); 
 		if(map.size()==0) return null;
 		if(map.size()>1) 
 			throw new DAOException("Multiple users retrieved using "+col_key+": "+col_value);
@@ -101,6 +101,7 @@ public class CKANWebApiDAO extends SciamlabDAO implements SciamlabAuthDAO {
 			u = new UserLocal();
 			((UserLocal) u).setFirstName(p.getProperty("fullname"));
 			((UserLocal) u).setEmail(p.getProperty("email"));
+			((UserLocal) u).setPassword(p.getProperty("password"));
 		}
 		u.setApiKey(p.getProperty("apikey"));
 		u.setId(p.getProperty("name"));

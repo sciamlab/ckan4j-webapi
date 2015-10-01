@@ -34,7 +34,7 @@ public class RatingStarsResource {
 	private CKANRating ckan_rating;
 	
 	public RatingStarsResource() throws MalformedURLException { 
-		ckan_rating = CKANRatingBuilder.getInstance(dao, CKANWebApiConfig.CKAN_ENDPOINT+"/api/3", CKANWebApiConfig.CKAN_APIKEY, CKANWebApiConfig.RATING_TABLE).build();
+		ckan_rating = CKANRatingBuilder.getInstance(dao, CKANWebApiConfig.CKAN_ENDPOINT+"/api/3", CKANWebApiConfig.CKAN_API_KEY, CKANWebApiConfig.RATING_TABLE).build();
 	}
 	
 	@GET

@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.json.JSONObject;
 
+import com.sciamlab.auth.util.AuthLibConfig;
 import com.sciamlab.common.exception.InternalServerErrorException;
 import com.sciamlab.common.util.SciamlabStreamUtils;
 import com.sciamlab.common.util.SciamlabStringUtils;
@@ -37,9 +38,10 @@ public class CKANWebApiConfig {
 	public static String TWITTER_API_ENDPOINT;
 	
 	public static String CKAN_ENDPOINT;
+	public static String CKAN_API_ENDPOINT;
 	public static String DS_LOCATION;
 	public static String SECURITY_DS_LOCATION;
-	public static String CKAN_APIKEY;
+	public static String CKAN_API_KEY;
 	public static String RATING_TABLE;
 	public static String PUBLISHER_REPORTS_DATASET;
 	
@@ -55,6 +57,9 @@ public class CKANWebApiConfig {
 			logger.error(e.getMessage(), e);
 		}
 		logger.info("log4j config file successfully loaded");
+		
+		AuthLibConfig.init();
+		
 		//loading properties
 		try {
 			loadProps();
@@ -100,8 +105,9 @@ public class CKANWebApiConfig {
 			
 			CATEGORIES_FILE = prop.getProperty("categories.json");
 			CKAN_ENDPOINT = prop.getProperty("ckan.endpoint");
+			CKAN_API_ENDPOINT = prop.getProperty("ckan.api.endpoint");
+			CKAN_API_KEY = prop.getProperty("ckan.api.key");
 			DS_LOCATION = SECURITY_DS_LOCATION = prop.getProperty("ds.location");
-			CKAN_APIKEY = prop.getProperty("ckan.apikey");
 			RATING_TABLE = prop.getProperty("rating.table");
 			
 			GOOGLE_API_APP_NAME = prop.getProperty("google.api.app_name");
@@ -123,12 +129,6 @@ public class CKANWebApiConfig {
 			
 			PUBLISHER_REPORTS_DATASET = prop.getProperty("publisher.reports.dataset");
 			
-//			//auth related
-			com.sciamlab.auth.util.AuthLibConfig.USERS_TABLE_NAME = prop.getProperty("db.table.users");
-			com.sciamlab.auth.util.AuthLibConfig.USERS_SOCIAL_TABLE_NAME = prop.getProperty("db.table.users_social");
-			com.sciamlab.auth.util.AuthLibConfig.ROLES_TABLE_NAME = prop.getProperty("db.table.roles");
-			com.sciamlab.auth.util.AuthLibConfig.PROFILES_TABLE_NAME = prop.getProperty("db.table.profiles");
-
 		} finally {
 			if (is != null) try { is.close(); } catch (IOException e) { logger.error(e.getMessage(),e); }
 		}

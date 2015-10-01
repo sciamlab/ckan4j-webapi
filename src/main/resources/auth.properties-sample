@@ -1,0 +1,50 @@
+ds.location = java:/comp/env/jdbc/user
+
+google.api.oauth_endpoint = https://accounts.google.com/o/oauth2/token
+google.api.secret = 
+google.api.client_id = 
+google.api.app_name = 
+
+facebook.api.endpoint = https://graph.facebook.com
+facebook.api.secret = 
+facebook.api.client_id = 
+
+github.api.oauth_endpoint = https://github.com/login/oauth/access_token
+github.api.endpoint = https://api.github.com
+github.api.secret = 
+github.api.client_id = 
+
+twitter.api.endpoint = https://api.twitter.com/oauth/authenticate
+twitter.api.secret = 
+twitter.api.client_id = 
+twitter.api.nonce = 
+
+oauth.redirect = http://bres.sciamlab.com/~paolo/git/sciamlab-web-template/callback
+
+reset.length = 10
+reset.from = @gmail.com
+reset.password = 
+reset.subject = Password reset for SciamLab
+reset.body = Hi <strong>#USER#</strong>,<br/>a password reset has been requested for your account.<br/><br/>The new password is: <strong>#PASSWORD#</strong><br/><br/>Please change it after next login.<br/><br/> Regards,<br/>The SciamLab team
+
+
+insert_user = INSERT INTO users (id, api_key, type, created, active) VALUES (?, ?, ?, ?, 'true')
+insert_user_local = INSERT INTO local (user_id, first_name, last_name, email, password) VALUES (?, ?, ?, ?, ?)
+insert_user_social = INSERT INTO social (user_id, social, social_id, user_name, display_name, details) VALUES (?, ?, ?, ?, ?, to_json(?::json))
+update_user = UPDATE users SET modified = ?, active = 'true' WHERE id = ?
+update_user_local = UPDATE local SET first_name = ?, last_name = ?, email = ?, password = ? WHERE user_id = ?
+update_user_social = UPDATE social SET user_name = ?, display_name = ?, details = to_json(?::json) WHERE user_id = ?
+delete_user = UPDATE users SET modified = ?, active = 'false' WHERE id = ?
+check_user_local_deleted = SELECT * FROM users LEFT JOIN local ON users.id = local.user_id WHERE local.email = ? AND users.active = 'false'
+check_user_social_deleted = SELECT * FROM users LEFT JOIN social ON users.id = social.user_id WHERE social.social_id AND social = ? AND users.active = 'false'
+get_user_by_apikey = SELECT * FROM users LEFT JOIN local ON users.id = local.user_id LEFT JOIN social ON users.id = social.user_id WHERE users.api_key = ? AND users.active = 'true'
+get_user_by_id = SELECT * FROM users LEFT JOIN local ON users.id = local.user_id LEFT JOIN social ON users.id = social.user_id WHERE users.id = ? AND users.active = 'true'
+get_user_local = SELECT * FROM users JOIN local ON users.id = local.user_id WHERE local.email = ? AND users.active = 'true'
+get_user_social = SELECT * FROM users JOIN social ON users.id = social.user_id WHERE social.user_name = ? AND social = ? AND users.active = 'true'
+get_users_list = SELECT * FROM users LEFT JOIN local ON users.id = local.user_id LEFT JOIN social ON users.id = social.user_id WHERE users.active = 'true'
+get_roles_by_user_id = SELECT role FROM roles WHERE user_id = ?;
+get_product_list = SELECT product FROM products;
+get_profiles_by_user_id = SELECT product, profile FROM profiles WHERE user_id = ?
+update_user_product_profile = UPDATE profiles SET profile = ?, modified = ? WHERE user_id = ? AND product = ?
+insert_user_product_profile = INSERT INTO profiles (user_id, product, profile, created) VALUES (?, ?, ?, ? ,?)
+

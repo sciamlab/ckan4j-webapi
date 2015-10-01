@@ -13,6 +13,7 @@ import static com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig.GOOGLE_API_CLIENT
 import static com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig.GOOGLE_API_OAUTH_ENDPOINT;
 import static com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig.GOOGLE_API_SECRET;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,8 +42,12 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.plus.Plus;
 import com.google.api.services.plus.model.Person;
+import com.sciamlab.auth.model.UserLocal;
+import com.sciamlab.ckan4j.CKANApiClient;
+import com.sciamlab.ckan4j.CKANApiClient.CKANApiClientBuilder;
 import com.sciamlab.ckan4j.CKANLogin;
 import com.sciamlab.ckan4j.CKANLogin.CKANLoginBuilder;
+import com.sciamlab.ckan4j.exception.CKANException;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
 import com.sciamlab.common.exception.ForbiddenException;
@@ -64,13 +69,19 @@ public class SocialLoginResource {
 	private static final String GITHUB = "github";
 	private static final String NOMAIL = "nomail@sciamlab.com";
 	private CKANLogin ckan_login;
+	private CKANApiClient ckan;
 	
 	
 	private HTTPClient http = new HTTPClient();
 	private CKANWebApiDAO dao = CKANWebApiDAO.getInstance();
 	
 	public SocialLoginResource(){
-		this.ckan_login = CKANLoginBuilder.getInstance(CKANWebApiConfig.CKAN_ENDPOINT, CKANWebApiConfig.CKAN_LOGIN_SECRET).build();
+		try {
+			this.ckan_login = CKANLoginBuilder.getInstance(CKANWebApiConfig.CKAN_ENDPOINT).secret(CKANWebApiConfig.CKAN_LOGIN_SECRET).build();
+			this.ckan = CKANApiClientBuilder.getInstance(CKANWebApiConfig.CKAN_API_ENDPOINT).apiKey(CKANWebApiConfig.CKAN_API_KEY).build();
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	@GET
@@ -251,38 +262,44 @@ public class SocialLoginResource {
 		}
     }
     
-	public Response doGenericLogin(String id, String user, String fullname, String email, final String social, final JSONObject json_person){
+    public Response doGenericLogin(String id, String user, String fullname, String email, final String social, final JSONObject json_person){
 		final String id_social = id + "@" + social;
 		//check user on ckan
 		boolean exists = false;
-		String check_user; 
+//		String check_user; 
+//		try {
+//			logger.debug(CKAN_ENDPOINT + "/api/3/action/user_show?id="+id_social);
+//			check_user = this.http.doGET(new URL(CKAN_ENDPOINT + "/api/3/action/user_show?id="+id_social), null, 
+//					new MultivaluedHashMap<String, String>(){{ 
+//						put("Authorization", new ArrayList<String>(){{ 
+//							add(CKANWebApiConfig.CKAN_API_KEY); }}); }}).readEntity(String.class);
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(), e);
+//			throw new InternalServerErrorException(e);
+//		}
+//		logger.debug(check_user);
+		JSONObject json = null;
+//		try {
+//			json = new JSONObject(check_user);
+//		} catch (Exception e) {
+//			logger.error(e.getMessage(), e);
+//			throw new InternalServerErrorException(e);
+//		}
 		try {
-			logger.debug(CKAN_ENDPOINT + "/api/3/action/user_show?id="+id_social);
-			check_user = this.http.doGET(new URL(CKAN_ENDPOINT + "/api/3/action/user_show?id="+id_social), null, 
-					new MultivaluedHashMap<String, String>(){{ 
-						put("Authorization", new ArrayList<String>(){{ 
-							add(CKANWebApiConfig.CKAN_APIKEY); }}); }}).readEntity(String.class);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
+			json = this.ckan.userShow(id_social);
+		} catch (CKANException e) {
+			logger.error(e.getMessage());
 			throw new InternalServerErrorException(e);
 		}
-		logger.debug(check_user);
-		JSONObject json;
-		try {
-			json = new JSONObject(check_user);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-			throw new InternalServerErrorException(e);
-		}
-		if(json.getBoolean("success")){ 
-			if(id_social.equals(json.getJSONObject("result").getString("id"))){
-				if("deleted".equals(json.getJSONObject("result").getString("state"))){
+		if(json != null){ 
+			if(id_social.equals(json.getString("id"))){
+				if("deleted".equals(json.getString("state"))){
 					throw new ForbiddenException("That login name is not available");
 				}
 				exists = true;
-				user = json.getJSONObject("result").getString("name");
+				user = json.getString("name");
 			}
-			if(!json.getJSONObject("result").has("email")){
+			if(!json.has("email")){
 				throw new ForbiddenException("Access denied: User not authorized to create users via the API");
 			}
 		}
@@ -302,8 +319,8 @@ public class SocialLoginResource {
 		//if not exists --> create user on ckan
 		if(exists)	{
 			action = "user_update";
-			if(fullname.equals(json.getJSONObject("result").getString("fullname")) 
-				&& email.equals(json.getJSONObject("result").getString("email")) )
+			if(fullname.equals(json.getString("fullname")) 
+				&& email.equals(json.getString("email")) )
 				skip=true; //nothing to be updated....
 		}else{
 			action = "user_create";
@@ -318,7 +335,7 @@ public class SocialLoginResource {
 						upsert_ckan_user_body.toString(), MediaType.APPLICATION_FORM_URLENCODED_TYPE, null, 
 						new MultivaluedHashMap<String, String>(){{ 
 							put("Authorization", new ArrayList<String>(){{ 
-								add(CKANWebApiConfig.CKAN_APIKEY); }}); }}).readEntity(String.class);
+								add(CKANWebApiConfig.CKAN_API_KEY); }}); }}).readEntity(String.class);
 				logger.debug(ckan_user);
 				JSONObject create_user_json = new JSONObject(ckan_user);
 				if(!create_user_json.getBoolean("success"))
@@ -344,25 +361,24 @@ public class SocialLoginResource {
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
-			//if exception --> remove user on CKANApiClient
-//			String delete_user = null; 
-//			try {
-//				JSONObject body = new JSONObject();
-//				body.put("id", ckan_id);
-//				delete_user = this.http.doPOST(new URL(CKAN_ENDPOINT + "/api/3/action/user_delete"), 
-//						body.toString(), MediaType.APPLICATION_FORM_URLENCODED_TYPE, null, 
-//						new MultivaluedHashMap<String, String>(){{ 
-//							put("Authorization", new ArrayList<String>(){{ 
-//								add(AuthLibConfig.CKAN_APIKEY); }}); }});
-//			} catch (Exception e1) { 
-//				//noop
-//			}
-//			logger.debug(delete_user);
-//			throw new InternalServerErrorException("Error updating/inserting social user. The created ckan user "+ckan_id+" has been deleted (rollback)");
 		}
 		//return auto-submit login form
-    	return ckan_login.login(user);
+    	return ckan_login.autologin(user);
     }
+    
+//    @POST
+//    @Path("local")
+//    public Response doPOSTLoginLOCAL(@Context UriInfo uriInfo, String body) {
+//    	logger.debug(uriInfo.getRequestUri());
+//		JSONObject json = new JSONObject(body);
+//		logger.debug(json);
+//		final String user_name = json.getString("user");
+//		final String psw = json.getString("password");
+//		UserLocal user = (UserLocal)this.dao.getUserByName(user_name);
+//		if(!user.checkPassword(psw))
+//			throw new ForbiddenException("Access denied for user: "+user_name);
+//		return ckan_login.login(user_name, psw);
+//    }
 	
     @GET
     @Path("logout")
@@ -370,154 +386,4 @@ public class SocialLoginResource {
     	return ckan_login.logout();
     }
 	
-    @POST
-    public Response doPOST() {
-		throw new MethodNotAllowedException();
-    }
-    
-    @GET
-    public Response doGET() {
-		throw new MethodNotAllowedException();
-    }
-    
-    @PUT
-    public Response doPUT() {
-		throw new MethodNotAllowedException();
-    }
-	
-    @DELETE
-    public Response doDELETE() {
-		throw new MethodNotAllowedException();
-    }
-    
-
-
-    /*
-     * Backup del draft dell'integrazione TWITTER
-     */
-    
-//  public static String hmacSha1(String value, String key) {
-//  try {
-//      // Get an hmac_sha1 key from the raw key bytes
-//      byte[] keyBytes = key.getBytes();           
-//      SecretKeySpec signingKey = new SecretKeySpec(keyBytes, "HmacSHA1");
-//
-//      // Get an hmac_sha1 Mac instance and initialize with the signing key
-//      Mac mac = Mac.getInstance("HmacSHA1");
-//      mac.init(signingKey);
-//
-//      // Compute the hmac on input data bytes
-//      byte[] rawHmac = mac.doFinal(value.getBytes());
-//
-//      // Convert raw bytes to Hex
-//      byte[] hexBytes = new Hex().encode(rawHmac);
-//
-//      //  Covert array of Hex bytes to a String
-//      return new String(hexBytes, "UTF-8");
-//  } catch (Exception e) {
-//      throw new RuntimeException(e);
-//  }
-//}
-
-//	@GET
-//    @Path("twitter/request_token")
-//    public Response doGETLoginTWITTER_REQUEST_TOKEN(@Context UriInfo uriInfo) {
-//		try{
-//			//%3D =
-//			//%26 &
-//			long timestamp = new Date().getTime()/1000;
-//			String signature_base = "POST&https%3A%2F%2Fapi.twitter.com%2Foauth%2Frequest_token&"
-//					+ "oauth_callback%3Dhttp%3A%2F%2Faltamira.duckdns.org:8080%2FCKANAPIExtension%2Fauth%2Ftwitter"
-//					+ "%26oauth_consumer_key%3D"+TWITTER_API_CLIENT_ID
-//					+ "%26oauth_nonce%"+TWITTER_NONCE
-//					+ "%26oauth_signature_method%3DHMAC-SHA1"
-//					+ "%26oauth_timestamp%3D"+timestamp
-//					+ "%26oauth_version%3D1.0";
-//			String signing_key = TWITTER_API_SECRET+"&";
-//			String oauth_signature = hmacSha1(signature_base, signing_key); 
-//			logger.debug("oauth_signature: "+oauth_signature);
-////			return Response.temporaryRedirect(new URI(CKAN_ENDPOINT+"/user/login")).build();
-//			final String authorization = "OAuth oauth_callback=\"http://altamira.duckdns.org:8080/CKANAPIExtension/auth/twitter\""
-//					+ ",oauth_consumer_key=\""+TWITTER_API_CLIENT_ID+"\""
-//					+ ",oauth_nonce=\""+TWITTER_NONCE+"\""
-//					+ ",oauth_signature_method=\"HMAC-SHA1\""
-//					+ ",oauth_timestamp=\""+timestamp+"\""
-//					+ ",oauth_version=\"1.0\""
-//					+ ",oauth_signature=\""+oauth_signature+"\"";
-//			
-//			String request_token = http.doPOST(new URL(TWITTER_API_ENDPOINT+"/oauth/request_token"),
-//					"", MediaType.APPLICATION_FORM_URLENCODED_TYPE,
-//					null, 
-//					new MultivaluedHashMap<String, String>(){{
-//						add("Authorization", authorization);
-//					}});
-//			logger.debug(request_token);
-////			if(!request_token.contains("oauth_token")
-////					&& !request_token.contains("oauth_token_secret")
-////					&& !request_token.contains("oauth_callback_confirmed"))
-//				return Response.temporaryRedirect(new URI(CKAN_ENDPOINT+"/user/login")).build();
-////			
-////			String oauth_token = request_token.split("&")[0].split("=")[0];
-////			logger.debug("OAUTH_TOKEN: "+oauth_token);
-////			return Response.temporaryRedirect(
-////				new URI(TWITTER_API_ENDPOINT+"/oauth/authenticate?oauth_token="+oauth_token)).build();
-//		} catch (Exception e) {
-//			throw new InternalServerErrorException(SciamlabStringUtils.stackTraceToString(e));
-//		}
-//	}
-	
-//	@GET
-//    @Path("twitter")
-//    public Response doGETLoginTWITTER(@Context UriInfo uriInfo) {
-//		logger.debug(uriInfo.getRequestUri());
-//		final String redirect_uri = uriInfo.getAbsolutePath().toString();
-//		MultivaluedMap<String, String> query = uriInfo.getQueryParameters();
-//		for(String k : query.keySet()){
-//			logger.debug(k+": "+query.get(k));
-//		}
-//		try {
-//			if(!query.containsKey("oauth_token") || !query.containsKey("oauth_verifier"))
-//				return Response.temporaryRedirect(new URI(CKAN_ENDPOINT+"/user/login")).build();
-//			
-//			return Response.temporaryRedirect(new URI(CKAN_ENDPOINT+"/user/login")).build();
-////			final String code = query.getFirst("code");
-////			
-////			//Identity confirmation
-////			String identity_confirmation = http.doGET(new URL(GITHUB_API_OAUTH_ENDPOINT),
-////					new MultivaluedHashMap<String, String>(){{
-////						add("client_id", GITHUB_API_CLIENT_ID);
-////						add("redirect_uri", redirect_uri);
-////						add("client_secret", GITHUB_API_SECRET);
-////						add("code", code);
-////					}}, 
-////					new MultivaluedHashMap<String, String>(){{
-////						add("Accept", "application/json");
-////					}});
-////			logger.debug(identity_confirmation);
-////			JSONObject json_identity_confirmation = (JSONObject) JSONSerializer.toJSON(identity_confirmation);
-////			final String accessToken = json_identity_confirmation.getString("access_token");
-//////			logger.debug(accessToken);
-////			
-////			//Getting user details
-////			String person = http.doGET(new URL(GITHUB_API_ENDPOINT+"/user"), 
-//////					new MultivaluedHashMap<String, String>(){{
-//////						add("access_token", accessToken);
-//////					}},
-////					null,
-////					new MultivaluedHashMap<String, String>(){{
-////						add("Authorization", "token "+accessToken);
-////					}});
-////			logger.debug(person);
-////			JSONObject json_person = (JSONObject)JSONSerializer.toJSON(person);
-////			String email = json_person.getString("email");
-////			String user = json_person.getString("login");
-////			String fullname = json_person.getString("name");
-////			String id = json_person.getString("id");
-////			return this.doGenericLogin(id, user, fullname, email, GITHUB, json_person);
-////			
-//		} catch (Exception e) {
-//			throw new InternalServerErrorException(SciamlabStringUtils.stackTraceToString(e));
-//		}
-//		
-//    }
 }

@@ -2,7 +2,6 @@ package com.sciamlab.ckan4j.webapi;
 
 import java.net.MalformedURLException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -22,15 +21,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.sciamlab.ckan4j.CKANApiClient;
-import com.sciamlab.ckan4j.CKANApiExtension;
 import com.sciamlab.ckan4j.CKANApiClient.CKANApiClientBuilder;
+import com.sciamlab.ckan4j.CKANApiExtension;
 import com.sciamlab.ckan4j.CKANApiExtension.App;
 import com.sciamlab.ckan4j.CKANApiExtension.CKANApiExtensionBuilder;
 import com.sciamlab.ckan4j.util.CKAN;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
+import com.sciamlab.common.exception.DAOException;
 import com.sciamlab.common.exception.InternalServerErrorException;
 import com.sciamlab.common.exception.NotFoundException;
+import com.sciamlab.common.util.Pair;
 import com.sciamlab.common.util.SciamlabCollectionUtils;
 
 
@@ -51,7 +52,7 @@ public class CKANApiExtensionResource {
 	
 	public CKANApiExtensionResource() throws MalformedURLException{
 		this.ckanapiext = CKANApiExtensionBuilder.getInstance(dao).build();
-		this.ckan = CKANApiClientBuilder.getInstance(CKANWebApiConfig.CKAN_ENDPOINT+"/api/3").apiKey(CKANWebApiConfig.CKAN_APIKEY).build();
+		this.ckan = CKANApiClientBuilder.getInstance(CKANWebApiConfig.CKAN_ENDPOINT+"/api/3").apiKey(CKANWebApiConfig.CKAN_API_KEY).build();
 	}
 	
 	@GET
@@ -69,7 +70,8 @@ public class CKANApiExtensionResource {
 					.put("organization/{name}")
 					.put("organizations/count")
 					.put("organizations/lastupdate")
-					.put("eurovoc/stats");
+					.put("eurovoc/stats")
+					.put("stats/dimension");
 			info.put("methods", methods);
 			return Response.ok(info.toString()).build();
 			
@@ -281,6 +283,24 @@ public class CKANApiExtensionResource {
 		}
 	}
 
+	@Path("stats/dimension")
+	@GET
+	public Response getDimensionAnalysis(@QueryParam("dim1") String dim1, @QueryParam("dim2") String dim2) {
+		try{
+			Map<Pair<String, String>, Integer> map = ckanapiext.getDimensionBasedStatistics(dim1, dim2);
+			JSONArray json = new JSONArray();
+			for(Pair<String, String> key : map.keySet())
+				json.put(new JSONArray().put(key.getFirst()).put(key.getSecond()).put(map.get(key)));
+			return Response.ok(json.toString()).build();
+		} catch (DAOException e) {
+			logger.error(e.getMessage(), e);
+			throw new InternalServerErrorException(e.getMessage());
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new InternalServerErrorException(e);
+		}
+	}
+	
 	@Path("organization/{name}")
 	@GET
     public Response getOrganizationDetails(@PathParam("name") String name) {
