@@ -78,7 +78,7 @@ public class SocialLoginResource {
 	public SocialLoginResource(){
 		try {
 			this.ckan_login = CKANLoginBuilder.getInstance(CKANWebApiConfig.CKAN_ENDPOINT).secret(CKANWebApiConfig.CKAN_LOGIN_SECRET).build();
-			this.ckan = CKANApiClientBuilder.getInstance(CKANWebApiConfig.CKAN_API_ENDPOINT).apiKey(CKANWebApiConfig.CKAN_API_KEY).build();
+			this.ckan = CKANApiClientBuilder.init(CKANWebApiConfig.CKAN_API_ENDPOINT).apiKey(CKANWebApiConfig.CKAN_API_KEY).build();
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}

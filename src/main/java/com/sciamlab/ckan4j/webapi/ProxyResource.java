@@ -1,7 +1,6 @@
 package com.sciamlab.ckan4j.webapi;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -23,11 +22,13 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,7 +38,6 @@ import com.sciamlab.common.exception.BadRequestException;
 import com.sciamlab.common.exception.InternalServerErrorException;
 import com.sciamlab.common.util.HTTPClient;
 import com.sciamlab.common.util.SciamlabStreamUtils;
-import com.sciamlab.common.util.SciamlabStringUtils;
 
 @Path("proxy")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -46,7 +46,7 @@ public class ProxyResource {
 	
 	private static final Logger logger = Logger.getLogger(ProxyResource.class);
 	
-//	private CKANWebApiDAO dao = CKANWebApiDAO.getInstance();
+//	private CKANLocalUserDAO dao = CKANLocalUserDAO.getInstance();
 	private HTTPClient http = new HTTPClient();
 	
 	public ProxyResource(){ }
@@ -140,7 +140,7 @@ public class ProxyResource {
 	}
 	
 //	/**
-//	 * the method uses the convention proposed at http://www.w3.org/TR/2015/WD-csv2json-20150108/
+//	 * TODO the method uses the convention proposed at http://www.w3.org/TR/csv2json/
 //	 * @param url
 //	 * @param type
 //	 * @param header
@@ -200,48 +200,53 @@ public class ProxyResource {
 	
 	public Map<Integer, List<Object>> getXLSRecordsFromURL(String url) throws Exception{
         try (InputStream is = SciamlabStreamUtils.getRemoteInputStream(url);){
-	        HSSFWorkbook wb = new HSSFWorkbook(is);
-	        HSSFSheet sheet = wb.getSheetAt(0);
-	        Iterator<Row> rowIterator = sheet.iterator();
-	        return getGenericExcelRecordsUsingIterator(rowIterator);
+	        return getExcelSheetRecordsFromWorkbook(new HSSFWorkbook(is));
         }
 	}
 	
 	public Map<Integer, List<Object>> getXLSXRecordsFromURL(String url) throws Exception{
         try (InputStream is = SciamlabStreamUtils.getRemoteInputStream(url);){
-			XSSFWorkbook wb = new XSSFWorkbook(is);
-			XSSFSheet sheet = wb.getSheetAt(0);
-			Iterator<Row> rowIterator = sheet.iterator();
-			return getGenericExcelRecordsUsingIterator(rowIterator);
+			return getExcelSheetRecordsFromWorkbook(new XSSFWorkbook(is));
         }
 	}
 	
-	private Map<Integer, List<Object>> getGenericExcelRecordsUsingIterator(Iterator<Row> rowIterator) {
+	private Map<Integer, List<Object>> getExcelSheetRecordsFromWorkbook(Workbook wb) {
 		Map<Integer, List<Object>> records = new LinkedHashMap<Integer, List<Object>>();
 		int r_num = 0;
+//		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
 		Cell cell;
         Row row;
+        Sheet sheet = wb.getSheetAt(0);
+		Iterator<Row> rowIterator = sheet.iterator();
         while (rowIterator.hasNext()) {
 			row = rowIterator.next();
 			List<Object> record = new ArrayList<Object>();
 			Iterator<Cell> cellIterator = row.cellIterator();
 			while (cellIterator.hasNext()) {
 				cell = cellIterator.next();
+//				CellValue cellValue = evaluator.evaluate(cell);
 				switch (cell.getCellType()) {
-				case Cell.CELL_TYPE_BOOLEAN:
-					record.add(cell.getBooleanCellValue());
-					break;
-				case Cell.CELL_TYPE_NUMERIC:
-					record.add(cell.getNumericCellValue());
-					break;
-				case Cell.CELL_TYPE_STRING:
-					record.add(cell.getStringCellValue());
-					break;
-				case Cell.CELL_TYPE_BLANK:
-					record.add(" ");
-					break;
-				default:
-					record.add(cell);
+//				switch (cellValue.getCellType()) {
+					case Cell.CELL_TYPE_BOOLEAN:
+						record.add(cell.getBooleanCellValue());
+//						record.add(cellValue.getBooleanValue());
+						break;
+					case Cell.CELL_TYPE_NUMERIC:
+						record.add(cell.getNumericCellValue());
+//						record.add(cellValue.getNumberValue());
+						break;
+					case Cell.CELL_TYPE_STRING:
+						record.add(cell.getStringCellValue());
+//						record.add(cellValue.getStringValue());
+						break;
+					case Cell.CELL_TYPE_BLANK:
+						record.add(" ");
+						break;
+					case Cell.CELL_TYPE_ERROR:
+				        break;
+					// CELL_TYPE_FORMULA will never happen
+				    case Cell.CELL_TYPE_FORMULA: 
+				        break;
 				}
 			}
 			records.put(r_num, record);

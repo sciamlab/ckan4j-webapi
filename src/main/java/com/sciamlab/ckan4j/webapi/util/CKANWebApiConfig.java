@@ -50,7 +50,7 @@ public class CKANWebApiConfig {
 	
 	public static String CKAN_LOGIN_SECRET;
 	
-	static{
+	public static void init(){
 		try {
 			PropertyConfigurator.configure(SciamlabStreamUtils.getInputStream(System.getProperty("logprops_filepath", DEFAULT_LOG_FILE)));
 		} catch (FileNotFoundException e) {
@@ -58,7 +58,7 @@ public class CKANWebApiConfig {
 		}
 		logger.info("log4j config file successfully loaded");
 		
-		AuthLibConfig.init();
+		AuthLibConfig.init("ckan4j");
 		
 		//loading properties
 		try {
@@ -84,13 +84,7 @@ public class CKANWebApiConfig {
         }
 		
 		logger.info("DONE");
-		
-	} 
-	
-	/**
-	 * this is just to force the loading of static properties
-	 */
-	public static void init(){}
+	}
 	
 	public static void loadProps() throws IOException {
     	InputStream is = null;

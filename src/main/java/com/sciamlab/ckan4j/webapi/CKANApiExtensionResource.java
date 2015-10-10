@@ -52,7 +52,7 @@ public class CKANApiExtensionResource {
 	
 	public CKANApiExtensionResource() throws MalformedURLException{
 		this.ckanapiext = CKANApiExtensionBuilder.getInstance(dao).build();
-		this.ckan = CKANApiClientBuilder.getInstance(CKANWebApiConfig.CKAN_ENDPOINT+"/api/3").apiKey(CKANWebApiConfig.CKAN_API_KEY).build();
+		this.ckan = CKANApiClientBuilder.init(CKANWebApiConfig.CKAN_ENDPOINT+"/api/3").apiKey(CKANWebApiConfig.CKAN_API_KEY).build();
 	}
 	
 	@GET

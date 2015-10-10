@@ -23,6 +23,7 @@ import com.sciamlab.auth.annotation.ApiKeyAuthentication;
 import com.sciamlab.auth.model.User;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.common.exception.InternalServerErrorException;
+import com.sciamlab.common.exception.SciamlabWebApplicationException;
 import com.sciamlab.common.util.SciamlabCollectionUtils;
 
 @Path("user")
@@ -55,6 +56,9 @@ public class UserManagerResource {
 	        result.put("success", true);
 	        result.put("user", user.toJSON());
 			return Response.ok(result.toString()).build();
+		}catch(SciamlabWebApplicationException e){
+			logger.error(e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
@@ -78,6 +82,9 @@ public class UserManagerResource {
 	        }
 	        result.put("users", array);
 			return Response.ok(result.toString()).build();
+		}catch(SciamlabWebApplicationException e){
+			logger.error(e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
@@ -101,6 +108,9 @@ public class UserManagerResource {
 	        result.put("success", true);
 	        result.put("user", user.toJSON());
 			return Response.ok(result.toString()).build();
+		}catch(SciamlabWebApplicationException e){
+			logger.error(e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
@@ -124,6 +134,9 @@ public class UserManagerResource {
 	        result.put("success", true);
 			result.put("profiles", ((JSONObject)user.toJSON()).getJSONArray("profiles"));
 			return Response.ok(result.toString()).build();
+		}catch(SciamlabWebApplicationException e){
+			logger.error(e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
@@ -139,17 +152,17 @@ public class UserManagerResource {
 			JSONObject result = new JSONObject();
 			result.put("success", false);
 			JSONArray profiles = new JSONArray(body);
+			User user = null;
 			for(Object tmp : SciamlabCollectionUtils.asList(profiles)){
 				JSONObject profile = (JSONObject) tmp;
-				int res = dao.setUserAPIProfile(id, profile.getString("api"), profile.getString("profile"));
-				if(res!=1)
-					throw new InternalServerErrorException("Error updating profile "+profile);
+				user = dao.setUserProductProfile(id, profile.getString("api"), profile.getString("profile"));
 			}
 
 	        result.put("success", true);
+	        result.put("profiles", ((JSONObject)user.toJSON()).getJSONArray("profiles"));
 			return Response.ok(result.toString()).build();
-		} catch (InternalServerErrorException e) {
-			logger.error(e.getMessage(), e);
+		}catch(SciamlabWebApplicationException e){
+			logger.error(e.getMessage());
 			throw e;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -166,15 +179,17 @@ public class UserManagerResource {
 			JSONObject result = new JSONObject();
 			result.put("success", false);
 			JSONArray profiles = new JSONArray(body);
+			User user = null;
 			for(Object tmp : SciamlabCollectionUtils.asList(profiles)){
 				JSONObject profile = (JSONObject) tmp;
-				int res = dao.deleteUserAPIProfile(id, profile.getString("api"));
-				if(res!=1)
-					throw new InternalServerErrorException("Error deleting profile "+profile);
+				user = dao.deleteUserProductProfile(id, profile.getString("api"));
 			}
-	        
 	        result.put("success", true);
+	        result.put("profiles", ((JSONObject)user.toJSON()).getJSONArray("profiles"));
 			return Response.ok(result.toString()).build();
+		}catch(SciamlabWebApplicationException e){
+			logger.error(e.getMessage());
+			throw e;
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new InternalServerErrorException(e);
