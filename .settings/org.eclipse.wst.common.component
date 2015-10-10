@@ -7,7 +7,7 @@
         <dependent-module archiveName="ckan4j-2.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ckan4j/ckan4j">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="auth-lib-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/auth-lib/auth-lib">
+        <dependent-module archiveName="auth-lib-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/auth-lib/auth-lib">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="common-lib-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/common-lib/common-lib">
