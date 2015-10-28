@@ -3,6 +3,8 @@ package com.sciamlab.ckan4j.webapi;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +22,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -261,8 +264,10 @@ public class ProxyResource {
                 BufferedReader reader = new BufferedReader(isr);){
         	logger.debug("File encoding: "+isr.getEncoding());
         	Iterable<CSVRecord> csv_records = CSVFormat.DEFAULT.parse(reader);
+//        	Iterable<CSVRecord> csv_records = CSVParser.parse(new URL(url), StandardCharsets.UTF_8, CSVFormat.DEFAULT);
         	Map<Integer, List<Object>> records = new LinkedHashMap<Integer, List<Object>>();
 			for (CSVRecord csv_record : csv_records) {
+				System.out.println(csv_record);
     			List<Object> record = new ArrayList<Object>();
         	    for(String c : csv_record){
         	    	try {
