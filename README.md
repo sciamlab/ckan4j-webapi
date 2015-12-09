@@ -6,8 +6,9 @@ ckan4j-webapi is a web application that implements the ckan4j library services a
 Dependencies
 ------------
 The tools require a properly configured and working [ckan4j](http://github.com/sciamlab/ckan4j) that provide the appropriate methods to connect to a given CKAN instance.
+Furthermore the library require the [auth-lib](https://github.com/sciamlab/auth-lib) 
 
-As test you can use the endpoint: http://beta.sciamlab.com:8080/ckan4j/webapi/
+As test you can use the endpoint: http://www.sciamlab.com/ckan4j/webapi
 
 Contribute
 ----------
