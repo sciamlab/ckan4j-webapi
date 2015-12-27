@@ -369,9 +369,9 @@ public class SocialLoginResource {
     
 //    @POST
 //    @Path("local")
-//    public Response doPOSTLoginLOCAL(@Context UriInfo uriInfo, String body) {
+//    public Response doPOSTLoginLOCAL(@Context UriInfo uriInfo, String html) {
 //    	logger.debug(uriInfo.getRequestUri());
-//		JSONObject json = new JSONObject(body);
+//		JSONObject json = new JSONObject(html);
 //		logger.debug(json);
 //		final String user_name = json.getString("user");
 //		final String psw = json.getString("password");
