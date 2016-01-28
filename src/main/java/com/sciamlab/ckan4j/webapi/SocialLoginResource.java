@@ -288,8 +288,14 @@ public class SocialLoginResource {
 		try {
 			json = this.ckan.userShow(id_social);
 		} catch (CKANException e) {
-			logger.error(e.getMessage());
-			throw new InternalServerErrorException(e);
+			JSONObject error = new JSONObject(e.getMessage());
+			if("Not Found Error".equals(error.optString("__type"))){
+				//user not found on ckan, need to create
+				json = null;
+			} else{
+				logger.error(e.getMessage());
+				throw new InternalServerErrorException(e);
+			}
 		}
 		if(json != null){ 
 			if(id_social.equals(json.getString("id"))){
