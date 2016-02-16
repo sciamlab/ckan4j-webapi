@@ -356,13 +356,13 @@ public class SocialLoginResource {
 		try {
 			//update social details into user_social
 			final String fullname_final = fullname;
-			int r = dao.execUpdate("UPDATE user_social SET details = cast(? AS json), fullname = ? WHERE ckan_id = ? AND social = ?;", 
-					new ArrayList<Object>(){{add(json_person.toString());add(fullname_final);add(id_social);add(social);}});
+			int r = dao.execUpdate("UPDATE user_social SET details = cast(? AS json) WHERE ckan_id = ? AND social = ?;", 
+					new ArrayList<Object>(){{add(json_person.toString());add(id_social);add(social);}});
 			if(r==0){
 				logger.debug("No user found on user_extended with ckan id="+id_social);
 				//insert social details into user_extended
-				int r2 = dao.execUpdate("INSERT INTO user_social (ckan_id, social, fullname, details) VALUES (?, ?, ?, cast(? AS json));", 
-						new ArrayList<Object>(){{add(id_social);add(social);add(fullname_final);add(json_person.toString());}});
+				int r2 = dao.execUpdate("INSERT INTO user_social (ckan_id, social, details) VALUES (?, ?, cast(? AS json));", 
+						new ArrayList<Object>(){{add(id_social);add(social);add(json_person.toString());}});
 			}
 
 		} catch (Exception e) {

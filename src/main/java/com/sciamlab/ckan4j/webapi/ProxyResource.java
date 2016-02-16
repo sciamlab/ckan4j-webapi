@@ -27,7 +27,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -40,6 +42,7 @@ import com.google.common.base.CharMatcher;
 import com.sciamlab.common.exception.BadRequestException;
 import com.sciamlab.common.exception.InternalServerErrorException;
 import com.sciamlab.common.util.HTTPClient;
+import com.sciamlab.common.util.SciamlabDateUtils;
 import com.sciamlab.common.util.SciamlabStreamUtils;
 
 @Path("proxy")
@@ -227,28 +230,43 @@ public class ProxyResource {
 			Iterator<Cell> cellIterator = row.cellIterator();
 			while (cellIterator.hasNext()) {
 				cell = cellIterator.next();
-//				CellValue cellValue = evaluator.evaluate(cell);
 				switch (cell.getCellType()) {
-//				switch (cellValue.getCellType()) {
 					case Cell.CELL_TYPE_BOOLEAN:
 						record.add(cell.getBooleanCellValue());
-//						record.add(cellValue.getBooleanValue());
 						break;
 					case Cell.CELL_TYPE_NUMERIC:
-						record.add(cell.getNumericCellValue());
-//						record.add(cellValue.getNumberValue());
+						if (DateUtil.isCellDateFormatted(cell))
+							record.add(SciamlabDateUtils.getDateAsIso8061String(cell.getDateCellValue()));
+						else 
+							record.add(cell.getNumericCellValue());
 						break;
 					case Cell.CELL_TYPE_STRING:
 						record.add(cell.getStringCellValue());
-//						record.add(cellValue.getStringValue());
 						break;
 					case Cell.CELL_TYPE_BLANK:
-						record.add(" ");
+						record.add("");
 						break;
 					case Cell.CELL_TYPE_ERROR:
-				        break;
-					// CELL_TYPE_FORMULA will never happen
+				    	record.add(cell.getErrorCellValue());
+				    	break;
 				    case Cell.CELL_TYPE_FORMULA: 
+				    	switch (cell.getCachedFormulaResultType()) {
+					    	case Cell.CELL_TYPE_NUMERIC:
+					    		if (DateUtil.isCellDateFormatted(cell))
+									record.add(SciamlabDateUtils.getDateAsIso8061String(cell.getDateCellValue()));
+								else
+									record.add(cell.getNumericCellValue());
+								break;
+							case Cell.CELL_TYPE_STRING:
+								record.add(cell.getStringCellValue());
+								break;
+							case Cell.CELL_TYPE_BOOLEAN:
+								record.add(cell.getBooleanCellValue());
+								break;
+							case Cell.CELL_TYPE_ERROR:
+								record.add(cell.getErrorCellValue());
+						    	break;
+				    	}
 				        break;
 				}
 			}
