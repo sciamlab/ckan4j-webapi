@@ -39,8 +39,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.common.base.CharMatcher;
-import com.sciamlab.common.exception.BadRequestException;
-import com.sciamlab.common.exception.InternalServerErrorException;
+import com.sciamlab.common.exception.web.BadRequestException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
 import com.sciamlab.common.util.HTTPClient;
 import com.sciamlab.common.util.SciamlabDateUtils;
 import com.sciamlab.common.util.SciamlabStreamUtils;

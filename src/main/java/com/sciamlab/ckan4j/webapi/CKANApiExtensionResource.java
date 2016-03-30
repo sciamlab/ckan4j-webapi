@@ -3,6 +3,7 @@ package com.sciamlab.ckan4j.webapi;
 import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,8 +30,11 @@ import com.sciamlab.ckan4j.util.CKAN;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
 import com.sciamlab.common.exception.DAOException;
-import com.sciamlab.common.exception.InternalServerErrorException;
-import com.sciamlab.common.exception.NotFoundException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
+import com.sciamlab.common.exception.web.NotFoundException;
+import com.sciamlab.common.model.mdr.EUNamedAuthorityVocabulary;
+import com.sciamlab.common.model.mdr.EUNamedAuthorityVocabularyMap;
+import com.sciamlab.common.model.mdr.vocabulary.EUNamedAuthorityDataTheme;
 import com.sciamlab.common.util.Pair;
 import com.sciamlab.common.util.SciamlabCollectionUtils;
 
@@ -194,7 +198,7 @@ public class CKANApiExtensionResource {
 			for (String theme : eurovocMap.keySet() ) {
 				JSONObject themeObj = new JSONObject();
 				themeObj.put("name", theme);
-				themeObj.put("style", theme.toLowerCase().replaceAll(",","").replaceAll(" ", "-"));				
+				themeObj.put("style", theme.toLowerCase().replace(",","").replace(" ", "-"));				
 
 				Map<String, Integer> microthemeData = eurovocMap.get(theme);
 				JSONArray childrenMicrothemesArray = new JSONArray();
@@ -216,35 +220,28 @@ public class CKANApiExtensionResource {
 		}
 	}
 	
-//	private static final Map<String, String> CATEGORIES = new HashMap<String, String>(){{
-//		put("AGRICULTURE-FISHERIES-FORESTRY-FOOD", "Agricoltura, pesca, natura, cibo");//"Agriculture, fisheries, forestry, food");
-//		put("EDUCATION-CULTURE-AND-SPORT", "Istruzione, cultura e sport");//"Education, culture and sport");
-//		put("ENVIRONMENT", "Ambiente");//"Environment");
-//		put("ENERGY", "Energia");//"Energy");
-//		put("TRANSPORT", "Trasporto");//"Transport");
-//		put("SCIENCE-AND-TECHNOLOGY", "Scienza e tecnologia");//"Science and technology");
-//		put("ECONOMY-AND-FINANCE", "Economia e finanza");//"Economy and finance");
-//		put("POPULATION-AND-SOCIAL-CONDITIONS", "Popolazione e welfare");//"Population and social conditions");
-//		put("HEALTH", "Salute");//"Health");
-//		put("GOVERNMENT-PUBLIC-SECTOR", "Governo, pubblica amministrazione ");//"Government, public sector");
-//		put("REGIONS-CITIES", "Regioni e città");//"Regions, cities");
-//		put("JUSTICE-LEGAL-SYSTEM-PUBLIC-SAFETY", "Giustizia e sicurezza");//"Justice, legal system, public safety");
-//		put("INTERNATIONAL-ISSUES", "Politica internazionale");//"International issues");
-//	}};
-	
 	@Path("category/facets")
 	@GET
     public Response getCategoryfacets() {
 		try{
 			JSONArray result = new JSONArray();
-			List<Properties> res = dao.execQuery( "select pe.value as name, count(*) as c from package p join package_extra pe on p.id = pe.package_id where p.state='active' and pe.key='dcat-category-name' group by pe.value order by c desc");
+			List<Properties> res = dao.execQuery( 
+					"select pe.value as name, count(*) as c"
+					+ " from package p join package_extra pe on p.id = pe.package_id"
+					+ " where p.state='active' and pe.key='dcat-category-id'"
+					+ " group by pe.value"
+					+ " order by c desc");
 			for(Properties p : res) {
-				JSONObject f = new JSONObject();
-				f.put("count", p.get("c"));
-//				f.put("display_name", (CATEGORIES.containsKey(p.getProperty("name")))?CATEGORIES.get(p.getProperty("name")):p.getProperty("name"));
-				f.put("display_name", p.getProperty("name"));
-				f.put("name", p.getProperty("name"));
-				result.put(f);
+				try {
+					JSONObject f = new JSONObject();
+					f.put("count", p.get("c"));
+					f.put("display_name", CKANWebApiConfig.CATEGORIES.get(p.getProperty("name")).labels.get(Locale.ITALIAN.getISO3Language().toLowerCase()));
+					f.put("name", p.getProperty("name"));
+					result.put(f);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			return Response.ok(result.toString()).build();
 		} catch (Exception e) {

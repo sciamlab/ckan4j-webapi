@@ -20,7 +20,7 @@ import com.sciamlab.ckan4j.CKANRating.CKANRatingBuilder;
 import com.sciamlab.ckan4j.exception.CKANException;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
-import com.sciamlab.common.exception.InternalServerErrorException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
 
 @Path("rate")
 @Produces(MediaType.APPLICATION_JSON)

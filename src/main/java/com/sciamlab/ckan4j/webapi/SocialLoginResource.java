@@ -50,10 +50,10 @@ import com.sciamlab.ckan4j.CKANLogin.CKANLoginBuilder;
 import com.sciamlab.ckan4j.exception.CKANException;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
-import com.sciamlab.common.exception.ForbiddenException;
-import com.sciamlab.common.exception.InternalServerErrorException;
-import com.sciamlab.common.exception.MethodNotAllowedException;
-import com.sciamlab.common.exception.SciamlabWebApplicationException;
+import com.sciamlab.common.exception.web.ForbiddenException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
+import com.sciamlab.common.exception.web.MethodNotAllowedException;
+import com.sciamlab.common.exception.web.SciamlabWebApplicationException;
 import com.sciamlab.common.util.HTTPClient;
 
 @Path("auth")
@@ -190,7 +190,7 @@ public class SocialLoginResource {
 			if(email==null)
 				throw new ForbiddenException("Email null from facebook response");
 			if(email.contains("\u0040"))
-				email = email.replaceAll("u0040", "@");
+				email = email.replace("u0040", "@");
 			String user = email;
 			String fullname = json_person.getString("name");
 			String id = json_person.getString("id");
