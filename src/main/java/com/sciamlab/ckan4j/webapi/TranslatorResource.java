@@ -23,9 +23,9 @@ import com.sciamlab.auth.annotation.ApiKeyAuthentication;
 import com.sciamlab.ckan4j.CKANTranslator;
 import com.sciamlab.ckan4j.CKANTranslator.CKANTranslatorBuilder;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
-import com.sciamlab.common.exception.BadRequestException;
 import com.sciamlab.common.exception.DAOException;
-import com.sciamlab.common.exception.InternalServerErrorException;
+import com.sciamlab.common.exception.web.BadRequestException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
 
 /**
  * 

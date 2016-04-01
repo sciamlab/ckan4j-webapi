@@ -29,8 +29,8 @@ import com.sciamlab.ckan4j.util.CKAN;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
 import com.sciamlab.common.exception.DAOException;
-import com.sciamlab.common.exception.InternalServerErrorException;
-import com.sciamlab.common.exception.NotFoundException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
+import com.sciamlab.common.exception.web.NotFoundException;
 import com.sciamlab.common.util.Pair;
 import com.sciamlab.common.util.SciamlabCollectionUtils;
 

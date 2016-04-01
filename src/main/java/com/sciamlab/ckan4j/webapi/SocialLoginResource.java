@@ -21,10 +21,7 @@ import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -42,7 +39,6 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.plus.Plus;
 import com.google.api.services.plus.model.Person;
-import com.sciamlab.auth.model.UserLocal;
 import com.sciamlab.ckan4j.CKANApiClient;
 import com.sciamlab.ckan4j.CKANApiClient.CKANApiClientBuilder;
 import com.sciamlab.ckan4j.CKANLogin;
@@ -50,10 +46,9 @@ import com.sciamlab.ckan4j.CKANLogin.CKANLoginBuilder;
 import com.sciamlab.ckan4j.exception.CKANException;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
-import com.sciamlab.common.exception.ForbiddenException;
-import com.sciamlab.common.exception.InternalServerErrorException;
-import com.sciamlab.common.exception.MethodNotAllowedException;
-import com.sciamlab.common.exception.SciamlabWebApplicationException;
+import com.sciamlab.common.exception.web.ForbiddenException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
+import com.sciamlab.common.exception.web.SciamlabWebApplicationException;
 import com.sciamlab.common.util.HTTPClient;
 
 @Path("auth")

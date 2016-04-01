@@ -10,9 +10,8 @@ import org.apache.log4j.PropertyConfigurator;
 import org.json.JSONObject;
 
 import com.sciamlab.auth.util.AuthLibConfig;
-import com.sciamlab.common.exception.InternalServerErrorException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
 import com.sciamlab.common.util.SciamlabStreamUtils;
-import com.sciamlab.common.util.SciamlabStringUtils;
 
 public class CKANWebApiConfig {
 	

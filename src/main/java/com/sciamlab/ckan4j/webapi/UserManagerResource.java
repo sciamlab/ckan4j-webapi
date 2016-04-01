@@ -22,8 +22,8 @@ import org.json.JSONObject;
 import com.sciamlab.auth.annotation.ApiKeyAuthentication;
 import com.sciamlab.auth.model.User;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
-import com.sciamlab.common.exception.InternalServerErrorException;
-import com.sciamlab.common.exception.SciamlabWebApplicationException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
+import com.sciamlab.common.exception.web.SciamlabWebApplicationException;
 import com.sciamlab.common.util.SciamlabCollectionUtils;
 
 @Path("user")

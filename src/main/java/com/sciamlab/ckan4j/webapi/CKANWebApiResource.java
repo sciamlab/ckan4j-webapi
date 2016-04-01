@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.sciamlab.common.exception.InternalServerErrorException;
+import com.sciamlab.common.exception.web.InternalServerErrorException;
 
 
 /**

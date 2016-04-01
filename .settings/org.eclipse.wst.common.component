@@ -7,12 +7,6 @@
         <dependent-module archiveName="ckan4j-2.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ckan4j/ckan4j">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="auth-lib-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/auth-lib/auth-lib">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
-        <dependent-module archiveName="common-lib-1.0.0-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/common-lib/common-lib">
-            <dependency-type>uses</dependency-type>
-        </dependent-module>
         <property name="java-output-path" value="/ckan4j-webapi/target/classes"/>
         <property name="context-root" value="ckan4j"/>
     </wb-module>
