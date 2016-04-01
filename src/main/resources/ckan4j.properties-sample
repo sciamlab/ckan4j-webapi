@@ -2,7 +2,7 @@ ds.location = java:/comp/env/jdbc/ckan
 ckan.endpoint = 
 ckan.apikey = 
 rating.table = 
-categories.json = categories.json
+#categories.json = categories.json
 ## this is the name of the dataset that contains one resource for each report processed by amaca
 publisher.reports.dataset = 
 

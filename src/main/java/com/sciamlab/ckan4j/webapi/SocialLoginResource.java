@@ -185,7 +185,7 @@ public class SocialLoginResource {
 			if(email==null)
 				throw new ForbiddenException("Email null from facebook response");
 			if(email.contains("\u0040"))
-				email = email.replaceAll("u0040", "@");
+				email = email.replace("u0040", "@");
 			String user = email;
 			String fullname = json_person.getString("name");
 			String id = json_person.getString("id");

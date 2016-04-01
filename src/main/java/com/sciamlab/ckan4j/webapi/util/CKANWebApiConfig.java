@@ -7,10 +7,13 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.json.JSONObject;
 
 import com.sciamlab.auth.util.AuthLibConfig;
+import com.sciamlab.common.exception.SciamlabException;
 import com.sciamlab.common.exception.web.InternalServerErrorException;
+import com.sciamlab.common.model.mdr.EUNamedAuthorityVocabulary;
+import com.sciamlab.common.model.mdr.EUNamedAuthorityVocabularyMap;
+import com.sciamlab.common.model.mdr.vocabulary.EUNamedAuthorityDataTheme;
 import com.sciamlab.common.util.SciamlabStreamUtils;
 
 public class CKANWebApiConfig {
@@ -44,8 +47,9 @@ public class CKANWebApiConfig {
 	public static String RATING_TABLE;
 	public static String PUBLISHER_REPORTS_DATASET;
 	
-	public static JSONObject CATEGORIES;
-	public static String CATEGORIES_FILE;
+//	public static JSONObject CATEGORIES;
+//	public static String CATEGORIES_FILE;
+	public static EUNamedAuthorityVocabularyMap<EUNamedAuthorityDataTheme> CATEGORIES;
 	
 	public static String CKAN_LOGIN_SECRET;
 	
@@ -69,18 +73,25 @@ public class CKANWebApiConfig {
 		}		
 		//loading categories
 		logger.info("Loading Categories...");
-		InputStream is = null;
+//		InputStream is = null;
+//		try {
+//			is = SciamlabStreamUtils.getInputStream(CATEGORIES_FILE);
+//			String categories_file_content = SciamlabStreamUtils.convertStreamToString(is);
+//			CATEGORIES = new JSONObject(categories_file_content);
+//			logger.info("Found "+CATEGORIES.getJSONArray("categories").length()+" categories");
+//        }catch(Exception e){
+//        	logger.error("Error loading categories", e);
+//			throw new InternalServerErrorException(e);
+//    	}finally {
+//            if (is != null)	try { is.close(); } catch (IOException e) { logger.error(e.getMessage(), e); }
+//        }
 		try {
-			is = SciamlabStreamUtils.getInputStream(CATEGORIES_FILE);
-			String categories_file_content = SciamlabStreamUtils.convertStreamToString(is);
-			CATEGORIES = new JSONObject(categories_file_content);
-			logger.info("Found "+CATEGORIES.getJSONArray("categories").length()+" categories");
-        }catch(Exception e){
-        	logger.error("Error loading categories", e);
+			CATEGORIES = EUNamedAuthorityVocabulary.DATA_THEME.<EUNamedAuthorityDataTheme>load();
+		} catch (SciamlabException e) {
+			logger.error("Error loading categories", e);
 			throw new InternalServerErrorException(e);
-    	}finally {
-            if (is != null)	try { is.close(); } catch (IOException e) { logger.error(e.getMessage(), e); }
-        }
+		}
+
 		
 		logger.info("DONE");
 	}
@@ -96,7 +107,7 @@ public class CKANWebApiConfig {
 				logger.info(k+": "+prop.getProperty((String)k));
 			}
 			
-			CATEGORIES_FILE = prop.getProperty("categories.json");
+//			CATEGORIES_FILE = prop.getProperty("categories.json");
 			CKAN_ENDPOINT = prop.getProperty("ckan.endpoint");
 			CKAN_API_ENDPOINT = prop.getProperty("ckan.api.endpoint");
 			CKAN_API_KEY = prop.getProperty("ckan.api.key");
