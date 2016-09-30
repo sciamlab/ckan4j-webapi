@@ -11,6 +11,7 @@ import org.apache.log4j.PropertyConfigurator;
 import com.sciamlab.auth.util.AuthLibConfig;
 import com.sciamlab.common.exception.SciamlabException;
 import com.sciamlab.common.exception.web.InternalServerErrorException;
+import com.sciamlab.common.model.mdr.EUNamedAuthorityEntryMap;
 import com.sciamlab.common.model.mdr.EUNamedAuthorityVocabulary;
 import com.sciamlab.common.model.mdr.EUNamedAuthorityVocabularyMap;
 import com.sciamlab.common.model.mdr.vocabulary.EUNamedAuthorityDataTheme;
@@ -49,7 +50,7 @@ public class CKANWebApiConfig {
 	
 //	public static JSONObject CATEGORIES;
 //	public static String CATEGORIES_FILE;
-	public static EUNamedAuthorityVocabularyMap<EUNamedAuthorityDataTheme> CATEGORIES;
+	public static EUNamedAuthorityEntryMap<EUNamedAuthorityDataTheme> CATEGORIES;
 	
 	public static String CKAN_LOGIN_SECRET;
 	
@@ -86,12 +87,11 @@ public class CKANWebApiConfig {
 //            if (is != null)	try { is.close(); } catch (IOException e) { logger.error(e.getMessage(), e); }
 //        }
 		try {
-			CATEGORIES = EUNamedAuthorityVocabulary.DATA_THEME.<EUNamedAuthorityDataTheme>load();
+			CATEGORIES = EUNamedAuthorityVocabularyMap.load(EUNamedAuthorityVocabulary.DATA_THEME);
 		} catch (SciamlabException e) {
 			logger.error("Error loading categories", e);
 			throw new InternalServerErrorException(e);
 		}
-
 		
 		logger.info("DONE");
 	}

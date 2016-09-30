@@ -25,7 +25,6 @@ import com.sciamlab.ckan4j.CKANApiClient;
 import com.sciamlab.ckan4j.CKANApiClient.CKANApiClientBuilder;
 import com.sciamlab.ckan4j.CKANApiExtension;
 import com.sciamlab.ckan4j.CKANApiExtension.App;
-import com.sciamlab.ckan4j.CKANApiExtension.CKANApiExtensionBuilder;
 import com.sciamlab.ckan4j.util.CKAN;
 import com.sciamlab.ckan4j.webapi.dao.CKANWebApiDAO;
 import com.sciamlab.ckan4j.webapi.util.CKANWebApiConfig;
@@ -52,7 +51,7 @@ public class CKANApiExtensionResource {
 	private CKANApiClient ckan;
 	
 	public CKANApiExtensionResource() throws MalformedURLException{
-		this.ckanapiext = CKANApiExtensionBuilder.getInstance(dao).build();
+		this.ckanapiext = new CKANApiExtension.Builder(dao).build();
 		this.ckan = CKANApiClientBuilder.init(CKANWebApiConfig.CKAN_ENDPOINT+"/api/3").apiKey(CKANWebApiConfig.CKAN_API_KEY).build();
 	}
 	
