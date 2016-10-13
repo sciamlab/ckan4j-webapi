@@ -42,6 +42,7 @@ public class CKANWebApiConfig {
 	
 	public static String CKAN_ENDPOINT;
 	public static String CKAN_API_ENDPOINT;
+	public static String CKAN_LANGUAGES;
 	public static String DS_LOCATION;
 	public static String SECURITY_DS_LOCATION;
 	public static String CKAN_API_KEY;
@@ -110,6 +111,7 @@ public class CKANWebApiConfig {
 //			CATEGORIES_FILE = prop.getProperty("categories.json");
 			CKAN_ENDPOINT = prop.getProperty("ckan.endpoint");
 			CKAN_API_ENDPOINT = prop.getProperty("ckan.api.endpoint");
+			CKAN_LANGUAGES = prop.getProperty("ckan.languages");
 			CKAN_API_KEY = prop.getProperty("ckan.api.key");
 			DS_LOCATION = SECURITY_DS_LOCATION = prop.getProperty("ds.location");
 			RATING_TABLE = prop.getProperty("rating.table");

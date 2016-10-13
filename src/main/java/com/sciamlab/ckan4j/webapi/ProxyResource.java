@@ -279,7 +279,7 @@ public class ProxyResource {
 //        	Iterable<CSVRecord> csv_records = CSVParser.parse(new URL(url), StandardCharsets.UTF_8, CSVFormat.DEFAULT);
         	Map<Integer, List<Object>> records = new LinkedHashMap<Integer, List<Object>>();
 			for (CSVRecord csv_record : csv_records) {
-				System.out.println(csv_record);
+//				System.out.println(csv_record);
     			List<Object> record = new ArrayList<Object>();
         	    for(String c : csv_record){
         	    	try {
